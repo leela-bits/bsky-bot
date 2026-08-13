@@ -23,6 +23,7 @@
     },
     "dependencies": {
         "@atcute/bluesky": "^4.0.18",
+        "@atcute/bluesky-threading": "^6.0.2",
         "@atcute/client": "^5.1.1",
         "@atcute/password-session": "^1.0.2",
         "dotenv": "^17.4.2"
