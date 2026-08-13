@@ -1,36 +1,38 @@
-import { Client, ClientResponseError, ok, simpleFetchHandler } from '@atcute/client';
-import { isActorIdentifier } from '@atcute/lexicons/syntax';
+import { Client, ClientResponseError, ok } from '@atcute/client';
+import { PasswordSession } from '@atcute/password-session';
 import dotenv from 'dotenv';
 
-// load .env file
-dotenv.config({ quiet: true });
+// check to see if anyone mentioned us
+async function checkMentions(session: PasswordSession) {
+    if (!session.session.active) {
+        return;
+    }
 
-// main entry point for the bot
-async function main() {
-    // create a simple client without authentication
+    // create a client with the authenticated session
     const client = new Client({
-        handler: simpleFetchHandler({ service: 'https://public.api.bsky.app' }),
+        handler: session,
     });
 
     try {
-        // read and validate the bot handle
-        const botHandle = process.env.BOT_HANDLE!;
-        if (!isActorIdentifier(botHandle)) {
-            console.error(`${botHandle} is not a valid ActorIdentifier`);
-            return;
-        }
-
-        // try to get our own profile
-        const profile = await ok(
-            client.get('app.bsky.actor.getProfile', {
-                params: { actor: botHandle },
+        // get a list of all mention notifications
+        const { notifications } = await ok(
+            client.get('app.bsky.notification.listNotifications', {
+                params: {
+                    reasons: ['mention'],
+                    limit: 100,
+                },
             }),
         );
 
-        // try to get the actor name from the profile
-        const actorName = profile?.displayName ?? profile?.handle ?? profile?.did ?? botHandle;
+        // process each mention that hasn't been read yet
+        for (const notif of notifications) {
+            if (notif.reason !== 'mention' || notif.isRead) {
+                continue;
+            }
 
-        console.log(`Successfully retrieved profile data for "${actorName}"`);
+            // yay! Someone mentioned us!
+            console.log(`@${notif.author.handle} mentioned us at ${notif.indexedAt}`);
+        }
     } catch (error) {
         if (error instanceof ClientResponseError) {
             console.error(`${error.status} ${error.error} ${error.description}`);
@@ -38,6 +40,28 @@ async function main() {
     }
 }
 
+// main entry point for the bot
+async function main() {
+    // get the bot credentials from the environment variables
+    const service = process.env.BOT_PDS!;
+    const identifier = process.env.BOT_HANDLE!;
+    const password = process.env.BOT_PASSWORD!;
+
+    // authenticate using the credentials
+    await using session = await PasswordSession.login({
+        service,
+        identifier,
+        password,
+    });
+
+    // check to see if anyone has mentioned us
+    await checkMentions(session);
+}
+
+// load .env file
+dotenv.config({ quiet: true });
+
+// run the bot
 main().catch((err) => {
     console.error('Unhandled error', err);
 });
