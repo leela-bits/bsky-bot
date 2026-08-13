@@ -1,0 +1,36 @@
+{
+  "name": "bsky-bot",
+  "version": "1.0.0",
+  "description": "A Bluesky bot for fun and profit (mostly fun)",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm run lex",
+    "lex:pull": "lex-cli pull",
+    "lex:generate": "lex-cli generate",
+    "lex": "npm run lex:pull && npm run lex:generate",
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-leela:leela-bits/bsky-bot.git"
+  },
+  "author": "Leela Bits <leela-bits@proto.me>",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@atcute/lex-cli": "^3.2.1",
+    "@types/node": "^26.2.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@atcute/bluesky": "^4.0.18",
+    "@atcute/client": "^5.1.1",
+    "dotenv": "^17.4.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}

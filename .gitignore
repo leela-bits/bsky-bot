@@ -1,0 +1,5 @@
+.env
+dist/*
+src/lexicons/*
+node_modules
+.idea

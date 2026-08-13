@@ -1,0 +1,12 @@
+{
+  "id": "chat.bsky.actor.exportAccountData",
+  "defs": {
+    "main": {
+      "type": "query",
+      "output": {
+        "encoding": "application/jsonl"
+      }
+    }
+  },
+  "lexicon": 1
+}

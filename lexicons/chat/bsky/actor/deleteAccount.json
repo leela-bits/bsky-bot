@@ -1,0 +1,16 @@
+{
+  "id": "chat.bsky.actor.deleteAccount",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "encoding": "application/json"
+      }
+    }
+  },
+  "lexicon": 1
+}

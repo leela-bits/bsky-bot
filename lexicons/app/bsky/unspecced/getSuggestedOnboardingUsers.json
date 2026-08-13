@@ -1,0 +1,51 @@
+{
+  "id": "app.bsky.unspecced.getSuggestedOnboardingUsers",
+  "defs": {
+    "main": {
+      "type": "query",
+      "output": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "actors"
+          ],
+          "properties": {
+            "recId": {
+              "type": "string",
+              "description": "DEPRECATED: use recIdStr instead."
+            },
+            "actors": {
+              "type": "array",
+              "items": {
+                "ref": "app.bsky.actor.defs#profileView",
+                "type": "ref"
+              }
+            },
+            "recIdStr": {
+              "type": "string",
+              "description": "Snowflake for this recommendation, use when submitting recommendation events."
+            }
+          }
+        },
+        "encoding": "application/json"
+      },
+      "parameters": {
+        "type": "params",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "default": 25,
+            "maximum": 50,
+            "minimum": 1
+          },
+          "category": {
+            "type": "string",
+            "description": "Category of users to get suggestions for."
+          }
+        }
+      },
+      "description": "Get a list of suggested users for onboarding"
+    }
+  },
+  "lexicon": 1
+}
