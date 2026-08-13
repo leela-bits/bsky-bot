@@ -7,6 +7,8 @@ import { mainSchema as FeedGetPostThread } from '@atcute/bluesky/types/app/feed/
 import { mainSchema as Post } from '@atcute/bluesky/types/app/feed/post';
 import { threadViewPostSchema as ThreadViewPost } from '@atcute/bluesky/types/app/feed/defs';
 import { publishThread } from '@atcute/bluesky-threading';
+import cron from 'node-cron';
+import process from 'node:process';
 
 // log error information to the console
 function logError(error: unknown) {
@@ -50,8 +52,15 @@ async function checkMentions(session: PasswordSession) {
 
             // process each mention that hasn't been read yet
             for (const notif of notifications) {
-                if (notif.reason !== 'mention' || notif.isRead) {
+                if (notif.reason !== 'mention') {
                     continue;
+                }
+
+                // if the notification has been read then we are done reading
+                if (notif.isRead) {
+                    console.log('all notifications have been read');
+                    next = '';
+                    break;
                 }
 
                 try {
@@ -85,6 +94,22 @@ async function checkMentions(session: PasswordSession) {
                                 },
                             ],
                         });
+
+                        try {
+                            // update the notifications seen time
+                            console.log('updating notifications seen time');
+                            const seenAt = new Date(createdAt);
+                            seenAt.setTime(seenAt.getTime() + 1);
+                            await ok(
+                                client.call(NotifUpdateSeen, {
+                                    input: {
+                                        seenAt: seenAt.toISOString(),
+                                    },
+                                }),
+                            );
+                        } catch (error) {
+                            logError(error);
+                        }
                     }
                 } catch (error) {
                     logError(error);
@@ -93,21 +118,7 @@ async function checkMentions(session: PasswordSession) {
         } catch (error) {
             logError(error);
         }
-    } while (next);
-
-    try {
-        // update the notifications seen time
-        console.log('updating notifications seen time');
-        await ok(
-            client.call(NotifUpdateSeen, {
-                input: {
-                    seenAt: new Date().toISOString(),
-                },
-            }),
-        );
-    } catch (error) {
-        logError(error);
-    }
+    } while (next && next !== '');
 }
 
 // main entry point for the bot
@@ -121,17 +132,55 @@ async function main() {
 
     // authenticate using the credentials
     console.log('authenticating');
-    await using session = await PasswordSession.login({
-        service,
-        identifier,
-        password,
+    const session = await PasswordSession.login(
+        {
+            service,
+            identifier,
+            password,
+        },
+        {
+            onDelete: () => {
+                console.log('session deleted');
+            },
+            onUpdate: () => {
+                console.log('session updated');
+            },
+        },
+    );
+
+    const task = cron.createTask(
+        '*/10 * * * * *',
+        async () => {
+            // check to see if anyone has mentioned us
+            console.log('checking for mentions');
+            await checkMentions(session);
+        },
+        { noOverlap: true, startTimeout: 1000 },
+    );
+
+    // shutdown stops all the background tasks and logout of the session
+    async function shutdown() {
+        console.log('stopping task scheduler');
+        await Promise.all([...cron.getTasks().values()].map((t) => t.destroy()));
+
+        console.log('logging out');
+        await session.logout();
+        process.exit(0);
+    }
+
+    process.once('SIGINT', shutdown);
+    process.once('SIGTERM', shutdown);
+
+    task.once('task:started', () => {
+        console.log('task scheduler started');
     });
 
-    // check to see if anyone has mentioned us
-    console.log('checking for mentions');
-    await checkMentions(session);
+    task.once('task:stopped', () => {
+        console.log('task scheduler stopped');
+    });
 
-    console.log('stopping');
+    console.log('starting task scheduler');
+    task.start();
 }
 
 console.log('starting');
@@ -144,4 +193,4 @@ await main().catch((error) => {
     logError(error);
 });
 
-console.log('stopped');
+console.log('running');

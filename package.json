@@ -26,7 +26,8 @@
         "@atcute/bluesky-threading": "^6.0.2",
         "@atcute/client": "^5.1.1",
         "@atcute/password-session": "^1.0.2",
-        "dotenv": "^17.4.2"
+        "dotenv": "^17.4.2",
+        "node-cron": "^4.6.0"
     },
     "devDependencies": {
         "@atcute/lex-cli": "^3.2.1",
