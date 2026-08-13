@@ -1,34 +1,29 @@
 {
-  "compilerOptions": {
-    "types": [
-      "node",
-      "@atcute/bluesky"
-    ],
-    "rootDir": "src/",
-    "outDir": "dist/",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "target": "esnext",
-    "allowJs": true,
-    "resolveJsonModule": false,
-    "moduleDetection": "force",
-    "isolatedModules": true,
-    "verbatimModuleSyntax": false,
-    "strict": true,
-    "noImplicitOverride": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "module": "nodenext",
-    "declaration": true,
-    "moduleResolution": "nodenext",
-    "sourceMap": true,
-    "exactOptionalPropertyTypes": false,
-    "noUncheckedSideEffectImports": true,
-    "erasableSyntaxOnly": true
-  },
-  "include": [
-    "src"
-  ]
+    "compilerOptions": {
+        "types": ["node", "@atcute/bluesky"],
+        "rootDir": "src/",
+        "outDir": "dist/",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "target": "esnext",
+        "allowJs": true,
+        "resolveJsonModule": false,
+        "moduleDetection": "force",
+        "isolatedModules": true,
+        "verbatimModuleSyntax": false,
+        "strict": true,
+        "noImplicitOverride": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedIndexedAccess": true,
+        "module": "nodenext",
+        "declaration": true,
+        "moduleResolution": "nodenext",
+        "sourceMap": true,
+        "exactOptionalPropertyTypes": false,
+        "noUncheckedSideEffectImports": true,
+        "erasableSyntaxOnly": true
+    },
+    "include": ["src"]
 }

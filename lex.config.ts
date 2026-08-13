@@ -1,6 +1,4 @@
-// noinspection JSUnusedGlobalSymbols
-
-import {defineLexiconConfig} from '@atcute/lex-cli';
+import { defineLexiconConfig } from '@atcute/lex-cli';
 
 export default defineLexiconConfig({
     generate: {
