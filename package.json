@@ -28,7 +28,9 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "check": "biome check . && tsc --noEmit && npm test",
-    "check:fix": "biome check . --write . && tsc --noEmit"
+    "check:fix": "biome check . --write . && tsc --noEmit",
+    "container:build": "docker build -t bsky-bot .",
+    "container:run": "docker run --rm -it bsky-bot"
   },
   "dependencies": {
     "@atcute/bluesky": "^4.0.18",
