@@ -9,7 +9,7 @@ COPY . .
 
 RUN npm run check
 RUN npm run build
-RUN npm prune --omit=dev
+RUN rm -rf node_modules && npm ci --omit=dev --omit=optional
 
 
 FROM node:24-trixie-slim AS runtime
