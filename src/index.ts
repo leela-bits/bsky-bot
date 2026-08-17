@@ -10,7 +10,7 @@ import { Client, ClientResponseError, ClientValidationError, ok } from '@atcute/
 import { is } from '@atcute/lexicons';
 import { PasswordSession } from '@atcute/password-session';
 import dotenv from 'dotenv';
-import cron from 'node-cron';
+import { NotificationService } from './notification-service.ts';
 
 // log error information to the console
 function logError(error: unknown) {
@@ -24,7 +24,8 @@ function logError(error: unknown) {
 }
 
 // check to see if anyone mentioned us
-async function checkMentions(session: PasswordSession) {
+// noinspection JSUnusedLocalSymbols
+async function _checkMentions(session: PasswordSession) {
   // create a client with the authenticated session
   const client = new Client({
     handler: session,
@@ -154,31 +155,25 @@ async function main() {
       password,
     },
     {
-      onDelete: () => {
-        console.log('session deleted');
+      onDelete: (data) => {
+        console.log('session data deleted');
+        console.debug(data);
       },
-      onUpdate: () => {
-        console.log('session updated');
+      onUpdate: (data) => {
+        console.log('session data updated');
+        console.debug(data);
       },
     },
   );
 
-  const task = cron.createTask(
-    '*/10 * * * * *',
-    async () => {
-      // check to see if anyone has mentioned us
-      console.log('checking for mentions');
-      await checkMentions(session);
-    },
-    { noOverlap: true, startTimeout: 1000 },
-  );
+  const notifService = new NotificationService({
+    handler: session,
+    pollInterval: 10000,
+  });
 
   // shutdown stops all the background tasks and logout of the session
   async function shutdown() {
-    console.log('stopping task scheduler');
-    await Promise.all([...cron.getTasks().values()].map((t) => t.destroy()));
-
-    console.log('logging out');
+    await notifService.stop();
     await session.logout();
     process.exit(0);
   }
@@ -186,16 +181,7 @@ async function main() {
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);
 
-  task.once('task:started', () => {
-    console.log('task scheduler started');
-  });
-
-  task.once('task:stopped', () => {
-    console.log('task scheduler stopped');
-  });
-
-  console.log('starting task scheduler');
-  task.start();
+  notifService.start();
 }
 
 console.log('starting');
